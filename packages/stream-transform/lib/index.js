@@ -43,7 +43,7 @@ Transformer.prototype._transform = function (chunk, _, cb) {
   }
   try {
     let l = this.handler.length;
-    if (this.options.params !== null) {
+    if (this.options.params !== null && l >= 2) {
       l--;
     }
     if (l === 1) {

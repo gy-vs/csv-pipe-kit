@@ -27,7 +27,11 @@ class Stringifier extends Transform {
       records: 0,
     };
     this.api = stringifier(this.options, this.state, this.info);
+    const user_on_record = this.api.options.on_record;
     this.api.options.on_record = (...args) => {
+      if (user_on_record !== undefined) {
+        user_on_record(...args);
+      }
       this.emit("record", ...args);
     };
   }
