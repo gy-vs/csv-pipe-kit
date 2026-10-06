@@ -27,7 +27,13 @@ class Stringifier extends Transform {
       records: 0,
     };
     this.api = stringifier(this.options, this.state, this.info);
+    // Expose records through the `record` event while still honoring
+    // a user-provided `on_record` option
+    const on_record = this.api.options.on_record;
     this.api.options.on_record = (...args) => {
+      if (on_record !== undefined) {
+        on_record(...args);
+      }
       this.emit("record", ...args);
     };
   }

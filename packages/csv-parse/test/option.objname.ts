@@ -219,6 +219,34 @@ describe("Option `objname`", function () {
       );
     });
 
+    it("index 0 with the callback api", function (next) {
+      parse("k1,v1\nk2,v2\n", { objname: 0 }, (err, records) => {
+        if (err) return next(err);
+        should(Array.isArray(records)).be.false();
+        should(records).match({
+          k1: ["k1", "v1"],
+          k2: ["k2", "v2"],
+        });
+        next();
+      });
+    });
+
+    it("index 0 with the sync api", function () {
+      const records = parseSync("k1,v1\nk2,v2\n", { objname: 0 });
+      should(Array.isArray(records)).be.false();
+      should(records).match({
+        k1: ["k1", "v1"],
+        k2: ["k2", "v2"],
+      });
+    });
+
+    it("index 0 returns a serializable object with sync", function () {
+      const records = parseSync("k1,v1\nk2,v2\n", { objname: 0 });
+      JSON.stringify(records).should.eql(
+        JSON.stringify({ k1: ["k1", "v1"], k2: ["k2", "v2"] }),
+      );
+    });
+
     it("combined with info", function (next) {
       parse(
         dedent`

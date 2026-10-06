@@ -32,10 +32,9 @@ const transform = function () {
     }
   }
   // Validate arguments
-  let expected_handler_length = 1;
-  if (options.params) {
-    expected_handler_length++;
-  }
+  // `params` can be `0` or `false`, hence the presence check
+  const hasParams = options.params !== undefined && options.params !== null;
+  const expected_handler_length = hasParams ? 2 : 1;
   if (handler.length > expected_handler_length) {
     throw Error("Invalid Handler: only synchronous handlers are supported");
   }

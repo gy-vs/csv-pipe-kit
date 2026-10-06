@@ -42,12 +42,16 @@ Transformer.prototype._transform = function (chunk, _, cb) {
     cb = null; // Cancel further callback execution
   }
   try {
-    let l = this.handler.length;
-    if (this.options.params !== null) {
-      l--;
-    }
-    if (l === 1) {
-      // sync
+    const l = this.handler.length;
+    const hasParams = this.options.params !== null;
+    // Resolve the handler mode from its declared arguments:
+    //   sync:  `(record)` or `(record, params)`
+    //   async: `(record, callback)` or `(record, callback, params)`
+    // A one-argument handler is always synchronous; `params` is still
+    // passed as a second argument and simply ignored when not declared.
+    const isSync = l === 1 || (l === 2 && hasParams);
+    const isAsync = l === 3 ? hasParams : l === 2;
+    if (isSync) {
       const result = this.handler.call(this, chunk, this.options.params);
       if (result && result.then) {
         result.then((result) => {
@@ -59,10 +63,13 @@ Transformer.prototype._transform = function (chunk, _, cb) {
       } else {
         this.__done(null, [result], cb);
       }
-    } else if (l === 2) {
-      // async
+    } else if (isAsync) {
       const callback = (err, ...chunks) => this.__done(err, chunks, cb);
-      this.handler.call(this, chunk, callback, this.options.params);
+      if (l === 3) {
+        this.handler.call(this, chunk, callback, this.options.params);
+      } else {
+        this.handler.call(this, chunk, callback);
+      }
     } else {
       throw Error("Invalid handler arguments");
     }

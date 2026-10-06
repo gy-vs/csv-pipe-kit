@@ -31,6 +31,31 @@ describe("api.sync", function () {
     data.should.eql(["a|b|c", "1|2|3"]);
   });
 
+  it("honors falsy params values", function () {
+    transform(["ab"], { params: 0 }, function (record, params) {
+      return record[0] + params + record[1];
+    }).should.eql(["a0b"]);
+    transform(["ab"], { params: false }, function (record, params) {
+      return record[0] + params + record[1];
+    }).should.eql(["afalseb"]);
+  });
+
+  it("accepts a one-argument handler when params is set", function () {
+    const data = transform(
+      [
+        ["a", "b"],
+        ["1", "2"],
+      ],
+      {
+        params: { separator: "|" },
+      },
+      function (record) {
+        return record.join(",");
+      },
+    );
+    data.should.eql(["a,b", "1,2"]);
+  });
+
   it("only sync handlers are supported", function () {
     // Without options
     (function () {
